@@ -1,0 +1,139 @@
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../redux/userSlice";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const UpdateProfile = ({ setShowForm }) => {
+  const { userName, userEmail, userId } = useSelector((state) => {
+    return state.userSlice;
+  });
+  const [formData, setFormData] = useState({
+    userName: userName ? userName : "",
+    userEmail: userEmail ? userEmail : "",
+    userPassword: "",
+    userId: userId ? userId : "",
+  });
+  const [isBlur, setBlur] = useState({
+    userName: false,
+    userEmail: false,
+    userPassword: false,
+  });
+  const dispatch = useDispatch();
+  const [error, setError] = useState();
+
+  const handleBlur = (e) => {
+    const { id } = e.target;
+    setBlur((prev) => ({ ...prev, [id]: true }));
+  };
+  const handleInput = (e) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
+    setBlur((prev) => ({ ...prev, [id]: false }));
+  };
+  const isNameInvalid = isBlur.userName && formData.userName.length < 3;
+  const isEmailInvalid =
+    isBlur.userEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.userEmail);
+  const isPassInvalid = isBlur.userPassword && formData.userPassword.length < 8;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setError(null);
+      const res = await fetch(`${BASE_URL}/auth/delete`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message);
+        dispatch(
+          login({
+            userName: data.user.userName,
+            userId: data.user._id,
+            role: data.user.role,
+          })
+        );
+        localStorage.setItem("id", JSON.stringify(data.user._id));
+        setShowForm(false);
+      } else {
+        console.log(data);
+        setError(data.message);
+        alert("Faield to Update");
+      }
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+  return (
+    <div className="fixed inset-0 z-40 bg-white flex justify-center items-center">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-gray-100 shadow-md rounded-2xl p-6 w-full max-w-md space-y-5 text-base"
+      >
+        <div className="text-center text-xl font-semibold text-gray-800">
+          <h2>Update Account</h2>
+        </div>
+        <div className="flex flex-col">
+          <label htmlFor="name">New Name</label>
+          <input
+            onChange={handleInput}
+            onBlur={handleBlur}
+            className=" border rounded px-3 py-2 focus:outline-blue-400"
+            type="text"
+            id="userName"
+            value={formData.userName}
+            placeholder="Full Name"
+          />
+          {isNameInvalid && (
+            <p className="text-sm text-red-600">Please enter valid Name</p>
+          )}
+        </div>
+
+        <div className="flex flex-col">
+          <label htmlFor="email">New Email</label>
+          <input
+            onChange={handleInput}
+            onBlur={handleBlur}
+            className=" border rounded px-3 py-2 focus:outline-blue-400"
+            type="text"
+            id="userEmail"
+            value={formData.userEmail}
+            placeholder="abc@gmailcom"
+          />
+          {isEmailInvalid && (
+            <p className="text-sm text-red-600">Please enter valid email</p>
+          )}
+        </div>
+        <div className="flex flex-col">
+          <label htmlFor="password">New Password</label>
+          <input
+            onChange={handleInput}
+            onBlur={handleBlur}
+            className=" border rounded px-3 py-2 focus:outline-blue-400"
+            type="password"
+            id="userPassword"
+            value={formData.userPassword}
+            placeholder="New Password"
+          />
+          {isPassInvalid && (
+            <p className="text-sm text-red-600">Please enter valid passsword</p>
+          )}
+        </div>
+        <div className="flex gap-5">
+          <button className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600">
+            Update
+          </button>
+          <button
+            onClick={() => setShowForm(false)}
+            className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
+          >
+            Cancel
+          </button>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default UpdateProfile;

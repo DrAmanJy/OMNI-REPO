@@ -1,0 +1,4 @@
+@import "tailwindcss";
+.active{
+    background: #7ccff5;
+}
