@@ -1,0 +1,25 @@
+@import "tailwindcss";
+@font-face {
+  font-family: "PPNeueMontrealMono";
+  src: url("/fonts/PPNeueMontrealMono-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "PPNeueMontrealMono";
+  src: url("/fonts/PPNeueMontrealMono-Book.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "PPNeueMontrealMono";
+  src: url("/fonts/PPNeueMontrealMono-RegularItalic.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+body {
+  font-family: "PPNeueMontrealMono", monospace;
+}
